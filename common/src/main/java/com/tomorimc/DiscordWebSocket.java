@@ -65,6 +65,12 @@ public class DiscordWebSocket implements WebSocket.Listener {
         sendMessage(json);
     }
 
+    public void sendCommand(String player, String command) {
+        String escapedCmd = command.replace("\"", "\\\"");
+        String json = String.format("{\"event\":\"command\", \"player\":\"%s\", \"command\":\"%s\"}", player, escapedCmd);
+        sendMessage(json);
+    }
+
     public void sendJoin(String player) {
         sendMessage(String.format("{\"event\":\"player_join\", \"player\":\"%s\"}", player));
     }
@@ -116,7 +122,7 @@ public class DiscordWebSocket implements WebSocket.Listener {
                     Component chat = Component.literal("§9[Discord] ")
                             .append(Component.literal(user).withStyle(net.minecraft.network.chat.Style.EMPTY
                                 .withColor(net.minecraft.network.chat.TextColor.parseColor(colorHex).getOrThrow())
-                                .withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT, hoverComponent))))
+                                .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(hoverComponent))))
                             .append(Component.literal("§f: " + msg));
                             
                             
@@ -141,8 +147,8 @@ public class DiscordWebSocket implements WebSocket.Listener {
                 } else if (event.equals("list_request")) {
                     int count = this.server.getPlayerCount();
                     StringBuilder players = new StringBuilder();
-                    for (ServerPlayer p : this.server.getPlayerList().getPlayers()) {
-                        players.append(p.getGameProfile().getName()).append(", ");
+                    for (net.minecraft.server.level.ServerPlayer p : this.server.getPlayerList().getPlayers()) {
+                        players.append(p.getGameProfile().name()).append(", ");
                     }
                     String playersStr = players.toString();
                     if (playersStr.endsWith(", ")) playersStr = playersStr.substring(0, playersStr.length() - 2);
@@ -161,19 +167,19 @@ public class DiscordWebSocket implements WebSocket.Listener {
                             return WebSocket.Listener.super.onText(webSocket, data, last);
                         }
                         
-                        java.util.UUID jUuid = java.util.UUID.fromString(linkedUuid);
-                        net.minecraft.server.level.ServerPlayer linkedPlayer = this.server.getPlayerList().getPlayer(jUuid);
-                        
-                        // Verifica se o jogador é OP (mesmo offline, conferimos na lista de OPs)
-                        com.mojang.authlib.GameProfile profile = this.server.getProfileCache()
-                            .get(jUuid).orElse(null);
                         boolean isOp = false;
-                        if (profile != null) {
-                            isOp = this.server.getPlayerList().isOp(profile);
-                        } else if (linkedPlayer != null) {
-                            isOp = this.server.getPlayerList().isOp(linkedPlayer.getGameProfile());
-                        }
+                        java.util.UUID jUuid = java.util.UUID.fromString(linkedUuid);
+                        com.mojang.authlib.GameProfile profile = this.server.services().profileResolver()
+                            .fetchById(jUuid).orElse(null);
                         
+                        if (profile != null) {
+                            isOp = this.server.getPlayerList().isOp(new net.minecraft.server.players.NameAndId(profile));
+                        } else {
+                            net.minecraft.server.level.ServerPlayer linkedPlayer = this.server.getPlayerList().getPlayer(jUuid);
+                            if (linkedPlayer != null) {
+                                isOp = this.server.getPlayerList().isOp(new net.minecraft.server.players.NameAndId(linkedPlayer.getGameProfile()));
+                            }
+                        }    
                         if (!isOp) {
                             sendMessage(String.format("{\"event\":\"command_result\", \"result\":\"[X] Acesso negado: seu jogador vinculado (%s) nao tem permissao de Operador (OP) no servidor Minecraft.\"}", linkedUuid));
                             return WebSocket.Listener.super.onText(webSocket, data, last);
@@ -212,7 +218,8 @@ public class DiscordWebSocket implements WebSocket.Listener {
                         java.util.UUID jUuid = java.util.UUID.fromString(uuid);
                         net.minecraft.server.level.ServerPlayer player = this.server.getPlayerList().getPlayer(jUuid);
                         if (player != null) {
-                            isOp = this.server.getPlayerList().isOp(player.getGameProfile());
+                            isOp = this.server.getPlayerList().isOp(new net.minecraft.server.players.NameAndId(player.getGameProfile()));
+                            Constants.LOG.info("TomoriMC - Discord is syncing roles for {}, isOp={}", player.getGameProfile().name(), isOp);
                         }
                         
                         // Envia sucesso pro discord (com status de OP)

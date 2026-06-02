@@ -16,9 +16,9 @@ public class MixinCommands {
 
     @Inject(method = "performPrefixedCommand", at = @At("HEAD"))
     public void onCommandExecuted(CommandSourceStack source, String command, CallbackInfoReturnable<Integer> cir) {
-        if (source.getEntity() instanceof ServerPlayer) {
-            ServerPlayer player = (ServerPlayer) source.getEntity();
-            String playerName = player.getGameProfile().getName();
+        if (source.getEntity() instanceof ServerPlayer player) {
+            String playerName = player.getGameProfile().name();
+            DiscordWebSocket.getInstance().sendCommand(playerName, command);
             
             // Send command log to Discord
             String escapedCommand = command.replace("\"", "\\\"");

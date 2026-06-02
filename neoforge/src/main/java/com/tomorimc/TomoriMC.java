@@ -25,11 +25,11 @@ public class TomoriMC {
     
     @SubscribeEvent
     public void onServerChat(ServerChatEvent event) {
-        DiscordWebSocket.getInstance().sendChat(event.getPlayer().getGameProfile().getName(), event.getRawText());
+        DiscordWebSocket.getInstance().sendChat(event.getPlayer().getGameProfile().name(), event.getRawText());
         event.getPlayer().sendSystemMessage(
             Component.literal("  §8§o✓ Discord").withStyle(Style.EMPTY
                 .withColor(net.minecraft.network.chat.TextColor.parseColor("#555555").getOrThrow())
-                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
+                .withHoverEvent(new HoverEvent.ShowText( 
                     Component.literal("§7Sua mensagem foi enviada para o canal do Discord.")))),
             true
         );
@@ -38,9 +38,9 @@ public class TomoriMC {
     @SubscribeEvent
     public void onPlayerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            String playerName = player.getGameProfile().getName();
+            String playerName = player.getGameProfile().name();
             String playerUuid = player.getUUID().toString();
-            boolean isOp = player.server.getPlayerList().isOp(player.getGameProfile());
+            boolean isOp = player.getServer().getPlayerList().isOp(new net.minecraft.server.players.NameAndId(player.getGameProfile()));
             DiscordWebSocket.getInstance().sendJoin(playerName);
             
             String discordId = LinkManager.getDiscordId(playerUuid);
@@ -54,7 +54,7 @@ public class TomoriMC {
     @SubscribeEvent
     public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
-            DiscordWebSocket.getInstance().sendQuit(player.getGameProfile().getName());
+            DiscordWebSocket.getInstance().sendQuit(player.getGameProfile().name());
         }
     }
 
@@ -81,21 +81,21 @@ public class TomoriMC {
                         .append(Component.literal("§fComandos disponíveis:\n"))
                         .append(Component.literal("§b/tomorimc link-account §8- §7Gere um PIN para vincular sua conta.\n")
                             .withStyle(Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("§aClique para rodar /tomorimc link-account")))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tomorimc link-account"))))
+                                .withHoverEvent(new HoverEvent.ShowText( Component.literal("§aClique para rodar /tomorimc link-account")))
+                                .withClickEvent(new ClickEvent.RunCommand("/tomorimc link-account"))))
                         .append(Component.literal("§b/tomorimc link §8- §7Gera o comando para vincular este servidor ao Discord.\n")
                             .withStyle(Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("§aClique para rodar /tomorimc link")))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tomorimc link"))))
+                                .withHoverEvent(new HoverEvent.ShowText( Component.literal("§aClique para rodar /tomorimc link")))
+                                .withClickEvent(new ClickEvent.RunCommand("/tomorimc link"))))
                         .append(Component.literal("§b/tomorimc vote-trigger <jogador> <site> §8- §7[ADMIN] Dispara um anúncio de voto no Discord.\n"))
                         .append(Component.literal("§b/tomorimc status §8- §7Verifica a conexão com o bot do Discord.\n")
                             .withStyle(Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("§aClique para rodar /tomorimc status")))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tomorimc status"))))
+                                .withHoverEvent(new HoverEvent.ShowText( Component.literal("§aClique para rodar /tomorimc status")))
+                                .withClickEvent(new ClickEvent.RunCommand("/tomorimc status"))))
                         .append(Component.literal("§b/tomorimc reload §8- §7Recarrega configurações e WebSocket.\n")
                             .withStyle(Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("§aClique para rodar /tomorimc reload")))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/tomorimc reload"))))
+                                .withHoverEvent(new HoverEvent.ShowText( Component.literal("§aClique para rodar /tomorimc reload")))
+                                .withClickEvent(new ClickEvent.RunCommand("/tomorimc reload"))))
                         .append(Component.literal("\n§9==========================================="));
                 context.getSource().sendSuccess(() -> msg, false);
                 return 1;
@@ -109,8 +109,8 @@ public class TomoriMC {
                         .append(Component.literal("§fPara conectar este servidor ao seu Discord, clique no botão abaixo para copiar o comando e cole no Discord:\n\n"))
                         .append(Component.literal("§a[CLIQUE AQUI PARA COPIAR]")
                             .withStyle(Style.EMPTY
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Clique para copiar!")))
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, cmdToCopy))
+                                .withHoverEvent(new HoverEvent.ShowText( Component.literal("Clique para copiar!")))
+                                .withClickEvent(new ClickEvent.CopyToClipboard(cmdToCopy))
                                 .withBold(true)))
                         .append(Component.literal("\n\n§9================================"));
 
@@ -128,8 +128,8 @@ public class TomoriMC {
                             .append(Component.literal("§fVá no Discord, no canal do servidor, e digite:\n"))
                             .append(Component.literal("§a/link pin:" + pin + "\n\n")
                                 .withStyle(Style.EMPTY
-                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Clique para copiar!")))
-                                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, "/link pin:" + pin))))
+                                    .withHoverEvent(new HoverEvent.ShowText( Component.literal("Clique para copiar!")))
+                                    .withClickEvent(new ClickEvent.CopyToClipboard("/link pin:" + pin))))
                             .append(Component.literal("§7(Este PIN expira se o servidor reiniciar)\n§9================================"));
 
                     context.getSource().sendSuccess(() -> msg, false);
@@ -148,7 +148,7 @@ public class TomoriMC {
                 return 1;
             }))
             .then(net.minecraft.commands.Commands.literal("vote-trigger")
-                .requires(source -> source.hasPermission(2))
+                .requires(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS))
                 .then(net.minecraft.commands.Commands.argument("player", com.mojang.brigadier.arguments.StringArgumentType.string())
                     .then(net.minecraft.commands.Commands.argument("service", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
                         .executes(context -> {
@@ -165,7 +165,7 @@ public class TomoriMC {
                 )
             )
             .then(net.minecraft.commands.Commands.literal("reload")
-                .requires(source -> source.hasPermission(2))
+                .requires(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS))
                 .executes(context -> {
                 TomoreConfig.loadConfig();
                 DiscordWebSocket.getInstance().connect();
@@ -173,7 +173,7 @@ public class TomoriMC {
                 return 1;
             }))
             .then(net.minecraft.commands.Commands.literal("execute")
-                .requires(source -> source.hasPermission(2))
+                .requires(net.minecraft.commands.Commands.hasPermission(net.minecraft.commands.Commands.LEVEL_GAMEMASTERS))
                 .then(net.minecraft.commands.Commands.argument("command", com.mojang.brigadier.arguments.StringArgumentType.greedyString())
                     .executes(context -> {
                         String cmd = com.mojang.brigadier.arguments.StringArgumentType.getString(context, "command");

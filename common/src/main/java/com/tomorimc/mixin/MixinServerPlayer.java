@@ -14,6 +14,6 @@ public class MixinServerPlayer {
     public void onDeath(DamageSource damageSource, CallbackInfo ci) {
         ServerPlayer player = (ServerPlayer) (Object) this;
         String deathMsg = player.getCombatTracker().getDeathMessage().getString();
-        DiscordWebSocket.getInstance().sendDeath(player.getGameProfile().getName(), deathMsg);
+        DiscordWebSocket.getInstance().sendDeath(player.getGameProfile().name(), deathMsg);
     }
 }

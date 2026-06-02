@@ -18,7 +18,7 @@ public abstract class MixinPlayerAdvancements {
     public void onAdvancementAwarded(net.minecraft.advancements.AdvancementHolder advancementHolder, String criterionKey, CallbackInfoReturnable<Boolean> cir) {
         Advancement advancement = advancementHolder.value();
         if (advancement.display().isPresent() && advancement.display().get().shouldAnnounceChat()) {
-            DiscordWebSocket.getInstance().sendAdvancement(player.getGameProfile().getName(), advancement.display().get().getTitle().getString());
+            DiscordWebSocket.getInstance().sendAdvancement(player.getGameProfile().name(), advancement.display().get().getTitle().getString());
         }
     }
 }
