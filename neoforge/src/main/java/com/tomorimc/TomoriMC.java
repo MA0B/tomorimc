@@ -40,7 +40,7 @@ public class TomoriMC {
         if (event.getEntity() instanceof ServerPlayer player) {
             String playerName = player.getGameProfile().name();
             String playerUuid = player.getUUID().toString();
-            boolean isOp = player.getServer().getPlayerList().isOp(new net.minecraft.server.players.NameAndId(player.getGameProfile()));
+            boolean isOp = ((net.minecraft.server.level.ServerLevel) player.level()).getServer().getPlayerList().isOp(new net.minecraft.server.players.NameAndId(player.getGameProfile()));
             DiscordWebSocket.getInstance().sendJoin(playerName);
             
             String discordId = LinkManager.getDiscordId(playerUuid);

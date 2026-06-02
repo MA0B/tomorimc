@@ -18,6 +18,6 @@ public class NeoForgePlatformHelper implements IPlatformHelper {
 
     @Override
     public boolean isDevelopmentEnvironment() {
-        return !net.neoforged.fml.loading.FMLEnvironment.production;
+        return false;
     }
 }
