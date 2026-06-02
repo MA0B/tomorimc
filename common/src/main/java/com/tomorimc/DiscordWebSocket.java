@@ -115,7 +115,7 @@ public class DiscordWebSocket implements WebSocket.Listener {
 
                     Component chat = Component.literal("§9[Discord] ")
                             .append(Component.literal(user).withStyle(net.minecraft.network.chat.Style.EMPTY
-                                .withColor(net.minecraft.network.chat.TextColor.parseColor(colorHex))
+                                .withColor(net.minecraft.network.chat.TextColor.parseColor(colorHex).getOrThrow())
                                 .withHoverEvent(new net.minecraft.network.chat.HoverEvent(net.minecraft.network.chat.HoverEvent.Action.SHOW_TEXT, hoverComponent))))
                             .append(Component.literal("§f: " + msg));
                             

@@ -1,13 +1,13 @@
 package com.tomorimc;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ServerChatEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStoppingEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.ServerChatEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.ClickEvent;
@@ -18,9 +18,9 @@ import net.minecraft.server.level.ServerPlayer;
 public class TomoriMC {
     
     public TomoriMC() {
-        Constants.LOG.info("Inicializando TomoriMC no Forge!");
+        Constants.LOG.info("Inicializando TomoriMC no NeoForge!");
         CommonClass.init();
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
     
     @SubscribeEvent
@@ -28,7 +28,7 @@ public class TomoriMC {
         DiscordWebSocket.getInstance().sendChat(event.getPlayer().getGameProfile().getName(), event.getRawText());
         event.getPlayer().sendSystemMessage(
             Component.literal("  §8§o✓ Discord").withStyle(Style.EMPTY
-                .withColor(net.minecraft.network.chat.TextColor.parseColor("#555555"))
+                .withColor(net.minecraft.network.chat.TextColor.parseColor("#555555").getOrThrow())
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
                     Component.literal("§7Sua mensagem foi enviada para o canal do Discord.")))),
             true

@@ -14,10 +14,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinPlayerAdvancements {
     @Shadow private ServerPlayer player;
 
-    @Inject(method = "award", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerAdvancements;markForVisibilityUpdate(Lnet/minecraft/advancements/Advancement;)V"))
-    public void onAdvancementAwarded(Advancement advancement, String criterionKey, CallbackInfoReturnable<Boolean> cir) {
-        if (advancement.getDisplay() != null && advancement.getDisplay().shouldAnnounceChat()) {
-            DiscordWebSocket.getInstance().sendAdvancement(player.getGameProfile().getName(), advancement.getDisplay().getTitle().getString());
+    @Inject(method = "award", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/PlayerAdvancements;markForVisibilityUpdate(Lnet/minecraft/advancements/AdvancementNode;)V"))
+    public void onAdvancementAwarded(net.minecraft.advancements.AdvancementHolder advancementHolder, String criterionKey, CallbackInfoReturnable<Boolean> cir) {
+        Advancement advancement = advancementHolder.value();
+        if (advancement.display().isPresent() && advancement.display().get().shouldAnnounceChat()) {
+            DiscordWebSocket.getInstance().sendAdvancement(player.getGameProfile().getName(), advancement.display().get().getTitle().getString());
         }
     }
 }

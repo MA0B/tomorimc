@@ -26,7 +26,7 @@ public class TomoriMC implements ModInitializer {
             // Confirmação sutil só para quem mandou a mensagem
             sender.sendSystemMessage(
                 Component.literal("  §8§o✓ Discord").withStyle(Style.EMPTY
-                    .withColor(net.minecraft.network.chat.TextColor.parseColor("#555555"))
+                    .withColor(net.minecraft.network.chat.TextColor.parseColor("#555555").getOrThrow())
                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, 
                         Component.literal("§7Sua mensagem foi enviada para o canal do Discord.")))),
                 true // overlay = true → aparece na action bar (acima do hotbar), super sutil
