@@ -12,10 +12,10 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up JDK 17
+    - name: Set up JDK 25
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: 'temurin'
         cache: gradle
         
@@ -29,10 +29,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: tomorimc-fabric
-        path: fabric/build/libs/*-1.20.1-*.jar
+        path: fabric/build/libs/*-26.1-*.jar
         
-    - name: Upload Forge Artifact
+    - name: Upload NeoForge Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: tomorimc-forge
-        path: forge/build/libs/*-1.20.1-*.jar
+        name: tomorimc-neoforge
+        path: neoforge/build/libs/*-26.1-*.jar
